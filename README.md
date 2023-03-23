@@ -1,2 +1,12 @@
-# An-lisis_Datos_Omicos_Poblaciones
-Actividades de la asignatura de análisis de datos ómicos para poblaciones del máster en bioinformática de la Universidad Internacional de Valencia (VIU)
+# Actividades de análisis de datos ómicos de ploblaciones.
+
+## Universidad Internacional de Valencia (VIU)
+
+### Alumno: Juan Carlos García Estupiñán
+
+* Directorios:
+
+    * [Actividad 1](actividad1)
+
+    * [Actividad 2](actividad2)
+

@@ -1,0 +1,4 @@
+     12 susceptible and Healthy
+     12 susceptible and PD
+     12 wild type and Healthy
+     12 wild type and PD

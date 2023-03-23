@@ -1,0 +1,1 @@
+6 ../results/pregunta1/jaulas.txt

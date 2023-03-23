@@ -1,0 +1,4 @@
+There was a problem importing ../data/raw/metadata.tsv:
+
+  Importing 'EMPSingleEndDirFmt' requires a directory, not ../data/raw/metadata.tsv
+
