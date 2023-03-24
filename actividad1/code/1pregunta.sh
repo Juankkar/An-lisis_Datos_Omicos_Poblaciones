@@ -20,9 +20,9 @@ sed -r 's/\r$//' -i ../data/raw/metadata.tsv
 ## En el navegador de QIIME he contado cual el campo respectivo
 ## a la jaula y crearé un código para ver el número de estas
 
-if [ ! -f ../results/pregunta1/jaulas.txt ] || \
-[ ! -f ../results/pregunta1/n_jaulas.txt ] || \
-[ ! -f ../results/pregunta1/genotypes.txt ]
+if [[ ! -f ../results/pregunta1/jaulas.txt || \
+    ! -f ../results/pregunta1/n_jaulas.txt || \
+    ! -f ../results/pregunta1/genotypes.txt ]]
 then
     ## Vemos las jaulas diferentes y el número de estas Contestamos
     ## de esta manera a la segunda pregunta también

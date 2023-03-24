@@ -9,9 +9,9 @@
 # read -p "> Ruta para estadísticas dada -> " stat
 
 
-if [ ! -f dada2_table.qza ] || \
-    [ ! -f dada2_rep_set.qza ] || \
-    [ ! -f dada2_stat.qza ]
+if [[ ! -f dada2_table.qza || \
+    ! -f dada2_rep_set.qza || \
+    ! -f dada2_stat.qza ]]
 then
     qiime dada2 denoise-single \
         --i-demultiplexed-seqs $1 \
@@ -23,14 +23,14 @@ else
     echo ">>> Ya están descargados los datos"
 fi
 
-if [ ! -f dada2_stat.qzv ] || \
-    [ ! -f demux-filtered.qza ] || \
-    [ ! -f demux-filter-stats.qza ] || \
-    [ ! -f rep-seqs-deblur.qza ] || \
-    [ ! -f table-deblur.qza ] || \
-    [ ! -f deblur-stats.qza ] || \
-    [ ! -f demux-filter-stats.qzv ] || \
-    [ ! -f deblur-stats.qzv ]
+if [[ ! -f dada2_stat.qzv || \
+    ! -f demux-filtered.qza || \
+    ! -f demux-filter-stats.qza || \
+    ! -f rep-seqs-deblur.qza || \
+    ! -f table-deblur.qza || \
+    ! -f deblur-stats.qza || \
+    ! -f demux-filter-stats.qzv || \
+    ! -f deblur-stats.qzv ]]
 then
     qiime metadata tabulate \
         --m-input-file dada2_stat.qza  \
