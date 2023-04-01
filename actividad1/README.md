@@ -33,9 +33,23 @@ El ejercicio debe realizarse según lo establecido en los ejemplos vistos en cla
 
 3. **Tras haber realizado el filtrado con DADA 2, ¿Cuántas lecturas quedan en la muestra recip.460.WT.HC3.D49? ¿Qué te parece este resultado? Incluye un pantallazo.**
 
+```
+sampleid    input   filtered    percentaje of input pass filter denoised non-chimeric   percentaje of input no-chimeric
+recip.460.WT.HC3.D49	16327	9919	60.75	347	347	2.13
+```
+
+    * En la columna de denoise que salen las lecturas que quedan tras filtrar y quiar el ruido
+
 4. **¿Cuáles son las tres categorías taxonómicas más abundantes en frecuencia relativa si usamos 5 niveles de clasificación taxonómica? Adjunta un pantallazo.**
 
+    * Las más comunes son:
+        * Bacteroidaceae.
+        * Lachnospiraceae.
+        * Porphyromonadaceae.
+
 5. **¿En qué jaula hay más diversidad, según el análisis de rarefacción? Adjunta un pantallazo.**
+
+    * La jaula ```C31``` se trata de la jaula con más diversidad (índice de Shannon) que hay.
 
 ### **IMPORTANTE**: Instrucciones entrega:
 
