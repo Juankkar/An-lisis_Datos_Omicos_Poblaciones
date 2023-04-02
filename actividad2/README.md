@@ -22,10 +22,15 @@ El ejercicio debe realizarse según lo establecido en los ejemplos vistos en cla
 ### **PREGUNTAS A RESPONDER**:
 
 1. Haz un subset de la orden Clostridiales, ¿Cuántos taxones había y cuántos taxones hay ahora?
+
 2. Representa para cada muestra su abundancia para cada una de las familias.
+
 3. Calcula el valor medio de diversidad alfa (Índice de Shannon) en las muestras según la variable donor_status, que diferencia a las muestras según tengan un trasplante de microbioma de personas sanas o con la enfermedad de Parkinson, haciendo uso del paquete microbiome. ¿ Hay diferencias significativas entre los grupos? ¿Qué grupo de muestras tiene una mayor diversidad alfa según este índice? Incluye el código utilizado para dar tu respuesta.
+
 4. Utiliza el paquete microbiome para obtener los índices de diversidad alfa, ¿Cuál es la muestra con menor índice de Shannon y qué valor tiene?
+
 5. Haz un subset de la clase Betaproteobacteria y representa en un árbol filogenético cada uno de los géneros contenidos en esta clase, distinguiéndolos con un marcador que indique la familia en el árbol y coloreando las muestras según la variable “genotype_and_donor_status”. Adjunta el código que utilizas para crearlo, así como el gráfico generado y qué conclusiones extraes de la observación de este árbol. 
 
 IMPORTANTE: Instrucciones entrega:
 La entrega se debe realizar en un único documento en formato PDF. En el mismo, se contestará a las preguntas en orden, escribiendo el alumno con sus propias palabras una respuesta razonado y adjuntando un pantallazo del código que se ha procesado desde el ordenador, así como la salida obtenida desde el ordenador, ya sea el gráfico que se pide generar o la salida del dato numérico que se pide. Cada captura debe contener la hora y fecha del ordenador (captura de pantalla completa). 
+
