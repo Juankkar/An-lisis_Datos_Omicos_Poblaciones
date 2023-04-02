@@ -1,0 +1,205 @@
+#!/usr/bin/env bash
+
+getwd()
+
+## Librarías que usamos para el análisis bioestadístico de
+## metataxonómica
+library(phyloseq)
+library(vegan)
+library(tidyverse)
+library(qiime2R)
+library(microbiome)
+library(knitr)
+library(rstatix)
+
+#------------------------------------------------------------------------------#
+
+###########################
+## Lecturas de los datos ##
+###########################
+
+SVs <- read_qza("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/raw/dada2_table.qza")
+taxonomy <- read_qza("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/raw/taxonomy.qza")
+taxonomy <- parse_taxonomy(taxonomy$data)
+metadata <- read_q2metadata("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/raw/metadata.tsv")
+tree <- read_qza("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/raw/rooted-tree.qza")
+
+SVs$data %>% view()
+SVs$contents %>% view()
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+
+###############################
+## "Porcesado"  de los datos ##
+###############################
+
+ASV <- otu_table(SVs$data, taxa_are_rows = TRUE)
+
+write.table(ASV, file="C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/ASV.tsv", 
+            quote=FALSE, 
+            sep='\t', 
+            col.names = TRUE)
+write.table(taxonomy, file='C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/taxonomy.tsv', 
+            quote=FALSE, 
+            sep='\t', 
+            col.names = TRUE)
+ASVmat <- as.matrix(read.table("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/ASV.tsv", 
+                               sep="\t"))
+taxmat <- as.matrix(read.table("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/taxonomy.tsv", 
+                               sep="\t"))
+ASV <- otu_table(ASVmat, taxa_are_rows = TRUE)
+tax_table(taxmat) %>% view()
+TAX <- tax_table(taxmat)
+
+
+rownames(metadata)=metadata$SampleID
+metadata<-sample_data(metadata)
+physeq = phyloseq(ASV, TAX, metadata, tree$data)
+
+taxa_names(physeq) <- paste0("ASV", seq(ntaxa(physeq)))
+physeq.clos = subset_taxa(physeq, Class == "Clostridia")
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+
+################
+## Pregunta 1 ##
+################
+
+## Haz un un subset del la orden Clostridiales ¿Cuántos taxones había taxones
+## hay ahora?
+
+## Filtramos el taxón de interés
+clostridiales_taxa <- subset_taxa(physeq, Order == "Clostridiales")
+
+## Calculamos el número de taxones totales del objeto physeq
+n_taxa_antes <- ntaxa(physeq);n_taxa_antes
+n_taxa_ahora <- ntaxa(clostridiales_taxa);n_taxa_ahora
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+
+################
+## Pregunta 2 ##
+################
+
+## Representa para cada muestra su abundancia para cada una de las familias
+plot_bar(physeq, 
+         fill = "Family",
+         title = "Abundancia para cada familia") +
+  scale_y_continuous(expand = expansion(0),
+                     limits = c(0,6000)) +
+  labs(x="Muestra",
+       y="Abundancia") +
+  theme_classic() +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", hjust = .5),
+    axis.title = element_text(size = 15, face = "bold"),
+    axis.text.x = element_text(angle = 90, vjust = 0.5)
+  )
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+
+################
+## Pregunta 3 ##
+################
+
+## Calcula el valor medio de diversidad alpha (Índice de Shannon) en las 
+## muestras según la variable donor_status, que diferencia a las muestras
+## según tengan un transplante de microbioma de personas sanas o con la 
+## enfermedad de Parkinson, haciendo uso del paquete micorbiome. ¿Hay dife_
+## rencias significativas entre los grupos? ¿Qué grupo de muestras tiene una
+## mayor diversidad alpha según este índice? 
+
+diversidad_alpha <- meta(physeq) %>% 
+  mutate(diversidad=diversity(physeq, "shannon")$shannon)
+#diversidad_alpha %>% view
+
+## Calcualmos el valor medio de la primera cuestión
+diversidad_alpha %>%
+  group_by(donor_status) %>% 
+  summarise(diversidad_media_alpha=mean(diversidad))
+
+## Ahora bien: existen diferencias significativas?
+
+## Vemos si existen normalidad en los datos
+
+## Sin separar los grupos p > 0.05
+shapiro.test(diversidad_alpha$diversidad) 
+
+## Vemos la normalidad en todos los grupos vemos que ambos grupos 
+## tienen p > 0.05, hay normalidad en los datos
+diversidad_alpha %>%
+  group_by(donor_status) %>% 
+  shapiro_test(diversidad)
+
+## Vemos la homocedasticidad de los datos p > 0.05
+diversidad_alpha %>% 
+  levene_test(diversidad~donor_status,
+              center = mean)
+
+## Hacemos un t.test p < 0.05
+diversidad_alpha %>%
+  t_test(diversidad~donor_status)
+
+# spl <- split(diversidad_alpha$diversidad, diversidad_alpha$donor_status)
+# 
+# pv <- ks.test(spl$Healthy,
+#               spl$PD)$p.value
+# 
+# pvadj <- p.adjust(pv)
+# pvadj
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+
+################
+## Pregunta 4 ##
+################
+
+## Utiliza el paquete microbiome para obtener los índices de diversidad alpha,
+## ¿Cuál es la muestra con menor índice de Shannon y qué valor tiene?
+
+## Mínimo
+diversidad_alpha %>%
+  summarise(min_shannon=min(diversidad))
+
+## Cual es la muestra?
+diversidad_alpha %>%
+  arrange(diversidad) %>%
+  head(n=1) %>%
+  view()
+
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+
+################
+## Pregunta 5 ##
+################
+
+## Haz un subset de la clase Betaproteobacteria y representa en un árbol filoge_
+## nético cada uno de los géneros contenidos en esta clase, distinguiéndolos con
+## con un marcador que indique la familia que indique la familia en el árbol y 
+## coloreando las muestras según la variable "genotype_and_donor_status". Adjunta
+## el código que utilizas para crearlo, así como el gráfico generado y qué 
+## conclusiones extraes de la observación de este árbol 
+
+betaproteobact_class <- subset_taxa(physeq, Class == "Betaproteobacteria")
+plot_tree(betaproteobact_class, 
+          color = "genotype_and_donor_status", 
+          shape = "Family", 
+          label.tips = "Genus", 
+          size = "abundance", 
+          plot.margin = 0.5, 
+          ladderize = TRUE)
+
+#------------------------------------------------------------------------------#
+

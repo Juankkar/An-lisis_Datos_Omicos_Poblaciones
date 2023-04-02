@@ -5,7 +5,10 @@
 library(phyloseq)
 library(vegan)
 library(tidyverse)
+library(qiime2R)
 library(microbiome)
+
+setwd("~/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/code")
 
 SVs <- read_qza("../data/raw/dada2_table.qza")
 taxonomy <- read_qza("../data/raw/taxonomy.qza")
