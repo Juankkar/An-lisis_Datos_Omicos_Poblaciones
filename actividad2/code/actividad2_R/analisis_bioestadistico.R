@@ -11,6 +11,8 @@ library(qiime2R)
 library(microbiome)
 library(knitr)
 library(rstatix)
+library(ggtext)
+
 
 #------------------------------------------------------------------------------#
 
@@ -37,14 +39,14 @@ SVs$contents %>% view()
 
 ASV <- otu_table(SVs$data, taxa_are_rows = TRUE)
 
-write.table(ASV, file="C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/ASV.tsv", 
-            quote=FALSE, 
-            sep='\t', 
-            col.names = TRUE)
-write.table(taxonomy, file='C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/taxonomy.tsv', 
-            quote=FALSE, 
-            sep='\t', 
-            col.names = TRUE)
+# write.table(ASV, file="C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/ASV.tsv", 
+#             quote=FALSE, 
+#             sep='\t', 
+#             col.names = TRUE)
+# write.table(taxonomy, file='C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/taxonomy.tsv', 
+#             quote=FALSE, 
+#             sep='\t', 
+#             col.names = TRUE)
 ASVmat <- as.matrix(read.table("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/ASV.tsv", 
                                sep="\t"))
 taxmat <- as.matrix(read.table("C:/Users/jcge9/OneDrive/Escritorio/Analisis_Datos_Omicos_Poblaciones/actividad2/data/processed/taxonomy.tsv", 
@@ -57,9 +59,6 @@ TAX <- tax_table(taxmat)
 rownames(metadata)=metadata$SampleID
 metadata<-sample_data(metadata)
 physeq = phyloseq(ASV, TAX, metadata, tree$data)
-
-taxa_names(physeq) <- paste0("ASV", seq(ntaxa(physeq)))
-physeq.clos = subset_taxa(physeq, Class == "Clostridia")
 
 #------------------------------------------------------------------------------#
 
@@ -148,13 +147,45 @@ diversidad_alpha %>%
 diversidad_alpha %>%
   t_test(diversidad~donor_status)
 
-# spl <- split(diversidad_alpha$diversidad, diversidad_alpha$donor_status)
-# 
-# pv <- ks.test(spl$Healthy,
-#               spl$PD)$p.value
-# 
-# pvadj <- p.adjust(pv)
-# pvadj
+diversidad_alpha %>%
+  group_by(donor_status) %>%
+  summarise(media_diversidad=mean(diversidad),
+            sd_diversidad=sd(diversidad)) %>%
+  ggplot(aes(donor_status, media_diversidad, fill=donor_status)) +
+  geom_bar(stat = "identity", 
+           color="black",
+           width = .5,
+           show.legend = FALSE) +
+  geom_errorbar(aes(ymin=media_diversidad-sd_diversidad,
+                    ymax=media_diversidad+sd_diversidad),
+                width=.25, size=.5) +
+  # geom_boxplot(alpha=.5, show.legend = FALSE, width=.5) +
+  # stat_summary(fun = "mean", color="red", geom = "crossbar", 
+  #              width=.5, show.legend = FALSE) +
+  labs(
+    title = "Ratones donantes <span style = 'color:darkgray'>Sanos</span> frente con <span style = 'color: orange'>Parkinson</span>",
+    subtitle = "*p* < 0.01*** (T-test)",
+    x="Ratones",
+    y="Diversidad (Shannon)"
+  ) +
+  scale_fill_manual(values = c("darkgray", "orange")) +
+  scale_x_discrete(breaks = c("Healthy", "PD"),
+                   labels = c("Sanos", "Parkinson")) +
+  scale_y_continuous(expand = expansion(0),
+                     limits = c(0,3.5)) +
+  theme_classic() +
+  theme(
+    plot.title = element_markdown(hjust = .5, size = 15),
+    plot.subtitle = element_markdown(hjust = .5, size = 12)
+  )
+
+spl <- split(diversidad_alpha$diversidad, diversidad_alpha$donor_status)
+
+pv <- ks.test(spl$Healthy,
+              spl$PD)$p.value
+
+pvadj <- p.adjust(pv)
+pvadj
 
 #------------------------------------------------------------------------------#
 
