@@ -129,23 +129,31 @@ diversidad_alpha %>%
 
 ## Vemos si existen normalidad en los datos
 
-## Sin separar los grupos p > 0.05
-shapiro.test(diversidad_alpha$diversidad) 
+# ## Sin separar los grupos p > 0.05
+# shapiro.test(diversidad_alpha$diversidad) 
+# 
+# ## Vemos la normalidad en todos los grupos vemos que ambos grupos 
+# ## tienen p > 0.05, hay normalidad en los datos
+# diversidad_alpha %>%
+#   group_by(donor_status) %>% 
+#   shapiro_test(diversidad)
+# 
+# ## Vemos la homocedasticidad de los datos p > 0.05
+# diversidad_alpha %>% 
+#   levene_test(diversidad~donor_status,
+#               center = mean)
+# 
+# ## Hacemos un t.test p < 0.05
+# diversidad_alpha %>%
+#   t_test(diversidad~donor_status)
 
-## Vemos la normalidad en todos los grupos vemos que ambos grupos 
-## tienen p > 0.05, hay normalidad en los datos
-diversidad_alpha %>%
-  group_by(donor_status) %>% 
-  shapiro_test(diversidad)
+spl <- split(diversidad_alpha$diversidad, diversidad_alpha$donor_status)
 
-## Vemos la homocedasticidad de los datos p > 0.05
-diversidad_alpha %>% 
-  levene_test(diversidad~donor_status,
-              center = mean)
+pv <- ks.test(spl$Healthy,
+              spl$PD)$p.value
 
-## Hacemos un t.test p < 0.05
-diversidad_alpha %>%
-  t_test(diversidad~donor_status)
+pvadj <- p.adjust(pv)
+pvadj
 
 diversidad_alpha %>%
   group_by(donor_status) %>%
@@ -155,16 +163,17 @@ diversidad_alpha %>%
   geom_bar(stat = "identity", 
            color="black",
            width = .5,
+           size=1,
            show.legend = FALSE) +
   geom_errorbar(aes(ymin=media_diversidad-sd_diversidad,
                     ymax=media_diversidad+sd_diversidad),
-                width=.25, size=.5) +
+                width=.25, size=1) +
   # geom_boxplot(alpha=.5, show.legend = FALSE, width=.5) +
   # stat_summary(fun = "mean", color="red", geom = "crossbar", 
   #              width=.5, show.legend = FALSE) +
   labs(
     title = "Ratones donantes <span style = 'color:darkgray'>Sanos</span> frente con <span style = 'color: orange'>Parkinson</span>",
-    subtitle = "*p* < 0.01*** (T-test)",
+    subtitle = "*p* < 0.01*** (Kolmogorov-Smirnov)",
     x="Ratones",
     y="Diversidad (Shannon)"
   ) +
@@ -178,14 +187,6 @@ diversidad_alpha %>%
     plot.title = element_markdown(hjust = .5, size = 15),
     plot.subtitle = element_markdown(hjust = .5, size = 12)
   )
-
-spl <- split(diversidad_alpha$diversidad, diversidad_alpha$donor_status)
-
-pv <- ks.test(spl$Healthy,
-              spl$PD)$p.value
-
-pvadj <- p.adjust(pv)
-pvadj
 
 #------------------------------------------------------------------------------#
 
@@ -205,8 +206,7 @@ diversidad_alpha %>%
 ## Cual es la muestra?
 diversidad_alpha %>%
   arrange(diversidad) %>%
-  head(n=1) %>%
-  view()
+  head(n=1) 
 
 #------------------------------------------------------------------------------#
 
